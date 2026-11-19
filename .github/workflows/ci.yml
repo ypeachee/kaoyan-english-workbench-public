@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check JavaScript syntax
+        run: node --check app.js
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate public package
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+
+          forbidden = Path("data/real-exams.json")
+          assert not forbidden.exists(), "完整题库不得提交到公开仓库"
+
+          tracked = subprocess.check_output(["git", "ls-files"], text=True).splitlines()
+          assert not any(str(forbidden) in p for p in tracked), "完整题库出现在 Git 跟踪文件中"
+
+          demo_js = Path("data/demo.js").read_text(encoding="utf-8")
+          assert "window.KY_DEMO" in demo_js and "questions" in demo_js
+
+          large_json = [
+              str(p) for p in Path(".").rglob("*.json")
+              if ".git" not in p.parts and p.stat().st_size > 500_000
+          ]
+          assert not large_json, f"疑似题库 JSON 文件过大: {large_json}"
+
+          for path in Path("docs").glob("*.json"):
+              json.loads(path.read_text(encoding="utf-8"))
+
+          print("public package ok: no full exam bank found")
+          PY

@@ -1,0 +1,40 @@
+{
+  "papers": [
+    {
+      "id": "custom-demo",
+      "year": 0,
+      "exam": "自定义",
+      "type": "reading",
+      "title": "导入模板 · 自定义示例",
+      "subtitle": "复制本文件后替换内容即可",
+      "passage": "This is a template passage. Replace it with your own text.\n\nEach paragraph should be separated by a blank line. Answers and explanations are stored together with the questions, so the workbench can grade your attempt immediately.",
+      "audio": "",
+      "questions": [
+        {
+          "id": "q1",
+          "stem": "What should you replace in this template?",
+          "options": [
+            { "label": "A", "text": "The passage and questions" },
+            { "label": "B", "text": "The browser" },
+            { "label": "C", "text": "The progress file" },
+            { "label": "D", "text": "Nothing" }
+          ],
+          "answer": "A",
+          "explanation": "模板用于示范结构：替换 passage 与 questions 后即可导入使用。"
+        },
+        {
+          "id": "q2",
+          "stem": "How are paragraphs separated?",
+          "options": [
+            { "label": "A", "text": "By a single space" },
+            { "label": "B", "text": "By a blank line" },
+            { "label": "C", "text": "By a comma" },
+            { "label": "D", "text": "By an HTML tag" }
+          ],
+          "answer": "B",
+          "explanation": "passage 中用空行（\\n\\n）分段，渲染时会自动拆成段落。"
+        }
+      ]
+    }
+  ]
+}

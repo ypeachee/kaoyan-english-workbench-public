@@ -1,0 +1,33 @@
+# Local browser/test artifacts
+.playwright-cli/
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+
+# Generated and diagnostic output
+output/
+work/
+tmp/
+*.log
+*.bak
+*.bak-*
+app.js.bak*
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Full exam bank is distributed by request only
+data/real-exams.json
+data/*private*.json
+kaoyan-bank-*.json
+kaoyan-backup-*.json
+*.private.json

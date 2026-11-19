@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f6f5e">
+<meta name="description" content="公开版考研英语工作台：阅读练习、长按查词、生词本、进度本地保存、完整题库邮件申请后导入。">
+<title>考研英语工作台</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到主内容</a>
+<div class="watermark" aria-hidden="true">yellow peach</div>
+<div class="app">
+  <aside class="sidebar" aria-label="主导航">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">K</span>
+      <div class="brand-text"><strong>考研英语</strong><span>工作台</span></div>
+    </div>
+    <nav class="nav" id="side-nav">
+      <button class="nav-item" data-route="dashboard">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg>
+        <span>工作台</span>
+      </button>
+      <button class="nav-item" data-route="library">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V4Zm2 2v12h10V6H7Zm2 2h6v2H9V8Zm0 4h6v2H9v-2Z"/></svg>
+        <span>题库</span>
+      </button>
+      <button class="nav-item" data-route="wrong">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Zm2 3v11.5l5-2.9 5 2.9V6H8Zm2 2h6v2h-6V8Z"/></svg>
+        <span>错题本</span>
+      </button>
+      <button class="nav-item" data-route="vocab">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5V4Zm2 2v12h10V6H7Zm2 3h6v1.6H9V9Zm0 3h4v1.6H9V12Z"/></svg>
+        <span>生词本</span>
+      </button>
+      <button class="nav-item" data-route="stats">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16v-2H4v2Zm1-4h3V9H5v7Zm5 0h3V4h-3v12Zm5 0h3v-9h-3v9Z"/></svg>
+        <span>统计</span>
+      </button>
+      <button class="nav-item" data-route="settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm8.4 2-1.9-.6a6.6 6.6 0 0 0-.6-1.4l.9-1.8-1.9-1.9-1.8.9a6.6 6.6 0 0 0-1.4-.6L12.6 4H9.4l-.6 1.9c-.5.2-1 .4-1.4.6l-1.8-.9-1.9 1.9.9 1.8c-.2.4-.4.9-.6 1.4L2 12v3.2l1.9.6c.2.5.4 1 .6 1.4l-.9 1.8 1.9 1.9 1.8-.9c.4.2.9.4 1.4.6l.6 1.9h3.2l.6-1.9c.5-.2 1-.4 1.4-.6l1.8.9 1.9-1.9-.9-1.8c.2-.4.4-.9.6-1.4l1.9-.6V12Z"/></svg>
+        <span>设置</span>
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="side-progress"><span id="side-done">0</span><i>/</i><span id="side-total">0</span><em>篇已完成</em></div>
+      <p>本地记忆 · 无账号 · 无广告</p>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 id="page-title">工作台</h1>
+        <p id="page-sub">把真题拆成今天能完成的一小步</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn top-icon" id="btn-guide" type="button" title="使用说明" aria-label="使用说明">?</button>
+        <button class="icon-btn top-icon" id="btn-feedback" type="button" title="反馈" aria-label="反馈">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3V5Zm2 2v.4l7 4.6 7-4.6V7H5Zm14 3.1-7 4.6-7-4.6V17h14v-6.9Z"/></svg>
+        </button>
+        <button class="btn ghost" id="btn-export-quick" type="button">导出备份</button>
+        <button class="btn primary" id="btn-continue-top" type="button">继续练习</button>
+      </div>
+    </header>
+
+    <div class="views">
+      <section class="view" id="view-dashboard" aria-labelledby="page-title">
+        <div class="hero card">
+          <div class="hero-copy">
+            <p class="eyebrow" id="dash-date"></p>
+            <h2 id="dash-greeting">今天练一篇，就很好。</h2>
+            <p class="muted" id="dash-sub">阅读优先，听力可选；进度自动保存在本机。</p>
+            <div class="hero-actions">
+              <button class="btn primary" id="dash-continue" type="button">继续上次</button>
+              <button class="btn ghost" data-route="library" type="button">去题库选题</button>
+            </div>
+          </div>
+          <div class="goal-ring" id="goal-ring" role="img" aria-label="今日目标进度">
+            <div class="goal-inner">
+              <strong id="goal-num">0</strong>
+              <span id="goal-label">/ 2 篇</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-row" id="dash-stats"></div>
+
+        <div class="grid two">
+          <div class="stack">
+            <section class="card">
+              <div class="card-head"><h3>继续练习</h3><span class="chip" id="continue-chip">推荐</span></div>
+              <div id="dash-continue-card"></div>
+            </section>
+            <section class="card">
+              <div class="card-head"><h3>本地记忆</h3><span class="chip done">自动保存</span></div>
+              <div id="dash-memory"></div>
+            </section>
+            <section class="card">
+              <div class="card-head"><h3>今日提示</h3><span class="chip">方法论</span></div>
+              <p class="muted small" style="margin:0">先做题、再对答案：每道错题都回到原文，划出定位句，再用一句话说明“为什么错”。</p>
+              <div class="hero-actions" style="margin-top:12px">
+                <button class="btn ghost sm" data-route="wrong" type="button">清错题</button>
+                <button class="btn ghost sm" data-route="stats" type="button">看统计</button>
+              </div>
+            </section>
+          </div>
+          <section class="card">
+            <div class="card-head"><h3>20 年计划</h3><span class="muted small">2007–2026 · 可滚动</span></div>
+            <div class="year-bars" id="dash-years"></div>
+          </section>
+        </div>
+
+        <section class="card">
+          <div class="card-head"><h3>最近练习</h3><span class="muted small">按时间倒序</span></div>
+          <div class="list" id="dash-recent"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-library" hidden>
+        <div class="card bank-gate">
+          <div class="bank-gate-copy">
+            <p class="eyebrow">BANK ACCESS</p>
+            <h2>公开版只带 2 篇示例</h2>
+            <p>完整题库不在 GitHub 仓库、Releases 或公开站点中。发送邮件说明使用目的，审核通过后手动发送 JSON；导入后只保存在你的本机。</p>
+          </div>
+          <div class="bank-gate-actions">
+            <a class="btn primary" id="bank-request-link" href="mailto:qdgzhtao@163.com?subject=%E7%94%B3%E8%AF%B7%E8%80%83%E7%A0%94%E8%8B%B1%E8%AF%AD%E5%B7%A5%E4%BD%9C%E5%8F%B0%E5%AE%8C%E6%95%B4%E9%A2%98%E5%BA%93">邮件申请完整题库</a>
+            <button class="btn ghost" id="btn-copy-bank-email" type="button">复制申请邮箱</button>
+          </div>
+        </div>
+        <div class="card filters">
+          <div class="filter-row">
+            <label class="field"><span>考试</span>
+              <select id="f-exam">
+                <option value="all">全部</option>
+                <option value="英语一">英语一</option>
+                <option value="英语二">英语二</option>
+                <option value="剑桥雅思">剑桥雅思</option>
+                <option value="示例">示例</option><option value="自定义">自定义</option>
+              </select>
+            </label>
+            <label class="field"><span>年份</span><select id="f-year"></select></label>
+            <label class="field"><span>状态</span>
+              <select id="f-status">
+                <option value="all">全部</option>
+                <option value="done">已完成</option>
+                <option value="todo">未完成</option>
+                <option value="empty">待导入</option>
+              </select>
+            </label>
+            <label class="field grow"><span>搜索</span><input id="f-q" type="search" placeholder="年份、篇目、关键词"></label>
+            <button class="btn ghost" id="btn-real" type="button">申请完整题库</button>
+            <button class="btn ghost" id="btn-smart" type="button">智能粘贴</button>
+            <button class="btn primary" id="btn-import" type="button">导入题库</button>
+          </div>
+          <p class="hint" id="lib-hint"></p>
+        </div>
+        <div class="list card" id="lib-list"></div>
+      </section>
+
+      <section class="view" id="view-practice" hidden>
+        <div id="practice-root"></div>
+      </section>
+
+      <section class="view" id="view-wrong" hidden>
+        <div class="card">
+          <div class="card-head"><h3>错题本</h3><span class="muted small" id="wrong-count"></span></div>
+          <div id="wrong-list"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-vocab" hidden>
+        <div id="vocab-root"></div>
+      </section>
+
+      <section class="view" id="view-stats" hidden>
+        <div id="stats-root"></div>
+      </section>
+
+      <section class="view" id="view-settings" hidden>
+        <div id="settings-root"></div>
+      </section>
+
+      <section class="view" id="view-notfound" hidden>
+        <div class="card empty-state"><h2>没有找到这个页面</h2><p class="muted">返回工作台继续。</p><button class="btn primary" data-route="dashboard">回到工作台</button></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<nav class="bottomnav" aria-label="移动端导航">
+  <button data-route="dashboard" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg><span>工作台</span></button>
+  <button data-route="library"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V4Zm2 2v12h10V6H7Z"/></svg><span>题库</span></button>
+  <button data-route="wrong"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/></svg><span>错题</span></button>
+  <button data-route="vocab"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5V4Zm2 2v12h10V6H7Z"/></svg><span>生词</span></button>
+  <button data-route="stats"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16v-2H4v2Zm1-4h3V9H5v7Zm5 0h3V4h-3v12Zm5 0h3v-9h-3v9Z"/></svg><span>统计</span></button>
+  <button data-route="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></svg><span>设置</span></button>
+</nav>
+
+
+<dialog id="guide-dialog" class="dialog guide-dialog" aria-labelledby="guide-title">
+  <div class="dialog-body">
+    <div class="guide-head">
+      <span class="eyebrow">yellow peach · 本地学习空间</span>
+      <button class="icon-btn" id="guide-close" type="button" aria-label="关闭">×</button>
+    </div>
+    <h2 id="guide-title">使用说明</h2>
+    <p class="muted small guide-intro">公开版内置 2 篇示例。完整题库需邮件申请后导入；你的作答、生词和上次位置会写入本机记忆。</p>
+    <div class="guide-steps">
+      <div class="guide-step"><b>1</b><div><strong>选题</strong><span>题库 → 按年份或篇目选择</span></div></div>
+      <div class="guide-step"><b>2</b><div><strong>阅读作答</strong><span>长按 / 双击文章、题干或选项中的单词可查词，选 A–D 作答</span></div></div>
+      <div class="guide-step"><b>3</b><div><strong>提交看解析</strong><span>错题会自动进入错题本</span></div></div>
+      <div class="guide-step"><b>4</b><div><strong>下次继续</strong><span>进度与上次位置自动保存在本机</span></div></div>
+    </div>
+    <div id="guide-memory" class="guide-memory"></div>
+    <p class="hint">需要电脑和手机互通？设置 → 云同步（可选），两台设备填同一个同步码。</p>
+    <div class="dialog-actions guide-actions">
+      <button class="btn ghost" id="btn-guide-feedback" type="button">反馈</button>
+      <button class="btn primary" id="btn-guide-start" type="button">开始使用</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="feedback-dialog" class="dialog feedback-dialog" aria-labelledby="feedback-title">
+  <form method="dialog" class="dialog-body">
+    <div class="card-head"><h3 id="feedback-title">反馈与建议</h3><button class="icon-btn" value="cancel" aria-label="关闭">×</button></div>
+    <p class="muted small">会打开你的邮件客户端，发送到 <strong>qdgzhtao@163.com</strong>。也可以直接复制邮箱。</p>
+    <div class="filter-row">
+      <label class="field"><span>类型</span><select id="feedback-type">
+        <option>使用问题</option><option>内容纠错</option><option>功能建议</option><option>其他</option>
+      </select></label>
+      <label class="field grow"><span>称呼（可选）</span><input id="feedback-name" placeholder="怎么称呼你"></label>
+    </div>
+    <label class="field"><span>反馈内容</span><textarea id="feedback-text" rows="5" placeholder="遇到了什么问题，或希望增加什么功能？"></textarea></label>
+    <label class="check-row"><input type="checkbox" id="feedback-context" checked> 附带当前页面与学习进度摘要（不含文章内容）</label>
+    <div class="feedback-email-row"><span>收件邮箱：<strong id="feedback-email">qdgzhtao@163.com</strong></span><button class="btn ghost sm" id="btn-copy-email" type="button">复制邮箱</button></div>
+    <div class="dialog-actions">
+      <button class="btn ghost" value="cancel">取消</button>
+      <button class="btn primary" id="btn-send-feedback" type="button">打开邮件发送</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="smart-dialog" class="dialog">
+  <form method="dialog" class="dialog-body">
+    <div class="card-head"><h3>智能粘贴整篇（仅阅读）</h3><button class="icon-btn" value="cancel" aria-label="关闭">×</button></div>
+    <p class="muted small">把「原文 + 题目 + 选项」整段粘进来，填好年份、篇目与答案，自动解析为题库。答案按题号顺序填写，如 <code>BCDAB</code>。</p>
+    <div class="filter-row">
+      <label class="field"><span>年份</span><input id="s-year" type="number" min="2007" max="2026" value="2024"></label>
+      <label class="field"><span>考试</span><select id="s-exam"><option>英语一</option><option>英语二</option></select></label>
+      <label class="field"><span>篇目</span><select id="s-no"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+      <label class="field grow"><span>答案（按题号顺序）</span><input id="s-answers" placeholder="如 BCDAB"></label>
+    </div>
+    <label class="field"><span>粘贴原文与题目</span><textarea id="s-text" rows="12" placeholder="Text 1
+
+第一段……
+
+21. 题干
+A. 选项
+B. 选项
+C. 选项
+D. 选项
+22. 题干
+A. ……"></textarea></label>
+    <div id="s-preview" class="smart-preview"></div>
+    <div class="dialog-actions">
+      <button class="btn ghost" value="cancel">取消</button>
+      <button class="btn primary" id="btn-smart-do" value="default">解析并导入</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="import-dialog" class="dialog">
+  <form method="dialog" class="dialog-body">
+    <div class="card-head"><h3>导入题库 / 备份</h3><button class="icon-btn" value="cancel" aria-label="关闭">×</button></div>
+    <p class="muted small">支持三种格式：<code>{"papers":[...]}</code>、单篇 paper 对象、或完整备份 <code>{"bank":[...],"progress":{...}}</code>。</p>
+    <label class="field"><span>选择 JSON 文件</span><input type="file" id="import-file" accept=".json,application/json"></label>
+    <label class="field"><span>或粘贴 JSON</span><textarea id="import-text" rows="10" placeholder='{"papers":[{"id":"y2013-t3","year":2013,"exam":"英语一","type":"reading","title":"Text 3","passage":"...","questions":[{"id":"31","stem":"...","options":[{"label":"A","text":"..."}],"answer":"B","explanation":"..."}]}]}'></textarea></label>
+    <div class="dialog-actions">
+      <button class="btn ghost" value="cancel">取消</button>
+      <button class="btn primary" id="btn-do-import" value="default">导入并保存</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="word-card" class="word-card" hidden aria-live="polite" tabindex="-1">
+  <div class="word-head">
+    <div><strong id="word-title" class="word-title"></strong><span id="word-phonetic" class="word-phonetic"></span></div>
+    <button class="icon-btn" id="word-close" type="button" aria-label="关闭查词">×</button>
+  </div>
+  <div id="word-body" class="word-body"></div>
+  <div class="word-actions">
+    <button class="btn ghost sm" id="word-speak" type="button">朗读</button>
+    <button class="btn primary sm" id="word-save" type="button">加入生词本</button>
+    <a class="btn ghost sm" id="word-more" href="#" target="_blank" rel="noopener">有道</a>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="data/plan.js"></script>
+<script src="data/demo.js"></script>
+<script src="data/dict.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+
+
