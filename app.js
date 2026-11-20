@@ -4,7 +4,6 @@
   var K = { bank: 'ky.bank.v1', progress: 'ky.progress.v1', settings: 'ky.settings.v1', vocab: 'ky.vocab.v1', dictCache: 'ky.dictcache.v1', memory: 'ky.memory.v1', cloud: 'ky.cloud.v1' };
   var DEFAULT_SETTINGS = { theme: 'auto', fontSize: 18, dailyGoal: 2, lookupOnline: true };
   var FEEDBACK_EMAIL = 'qdgzhtao@163.com';
-  var BANK_REQUEST_EMAIL = FEEDBACK_EMAIL;
 
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -464,44 +463,38 @@
     if (mq.addEventListener) mq.addEventListener('change', function () { if (state.settings.theme === 'auto') applySettings(); });
   }
 
-  function bankRequestUrl() {
-    var subject = '申请考研英语工作台完整题库';
-    var body = [
-      '你好，我想申请考研英语工作台完整题库。',
-      '',
-      '称呼：',
-      '使用目的：',
-      'GitHub 用户名（可选）：',
-      '',
-      '我确认题库仅用于个人备考，不公开传播或商用。'
-    ].join('\n');
-    return 'mailto:' + BANK_REQUEST_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-  }
-  function requestBank() {
-    var href = bankRequestUrl();
-    var a = document.createElement('a');
-    a.href = href; a.style.display = 'none';
-    document.body.appendChild(a); a.click(); a.remove();
-    toast('已打开邮件申请；如未打开，请复制邮箱 ' + BANK_REQUEST_EMAIL);
-  }
-  function copyBankEmail() {
-    function done() { toast('申请邮箱已复制：' + BANK_REQUEST_EMAIL); }
-    function fallback() {
-      try {
-        var ta = document.createElement('textarea');
-        ta.value = BANK_REQUEST_EMAIL; ta.style.position = 'fixed'; ta.style.left = '-9999px';
-        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done();
-      } catch (e) { window.prompt('复制申请邮箱', BANK_REQUEST_EMAIL); }
+  function loadRealExams(manual) {
+    if (realLoading) return;
+    if (realCache && !manual) return;
+    if (!/^https?:/.test(location.protocol)) {
+      if (manual) toast('请先用本地服务器打开（py -m http.server 8080），再载入真题');
+      return;
     }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(BANK_REQUEST_EMAIL).then(done).catch(fallback);
-    } else fallback();
+    realLoading = true;
+    var btn = $('#btn-real');
+    if (btn) { btn.disabled = true; btn.textContent = '载入中…'; }
+    fetch('data/real-exams.json', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (data) {
+        var list = Array.isArray(data) ? data : (data && data.papers) || [];
+        if (!Array.isArray(list) || !list.length) throw new Error('没有题目数据');
+        realCache = list;
+        realLoading = false;
+        if (manual) toast('已载入 ' + list.length + ' 篇真题（2007–2026）');
+        onHash();
+      })
+      .catch(function (err) {
+        realLoading = false;
+        if (manual) toast('真题库载入失败：' + (err && err.message ? err.message : '网络错误'));
+        var b = $('#btn-real');
+        if (b) { b.disabled = false; b.textContent = '载入真题'; }
+      });
   }
 
   /* ---------- router ---------- */
   var ROUTES = {
     dashboard: { title: '工作台', sub: '把真题拆成今天能完成的一小步' },
-    library: { title: '题库', sub: '示例可直接练 · 完整题库邮件申请后导入' },
+    library: { title: '题库', sub: '内置 148 篇真题 + 2 篇示例' },
     practice: { title: '练习', sub: '先做题，再对答案' },
     wrong: { title: '错题本', sub: '只复习真正做错的题' },
     vocab: { title: '生词本', sub: '长按查词，随手收藏' },
@@ -763,10 +756,11 @@
       }
       return true;
     });
-    $('#lib-hint').textContent = '共 ' + rows.length + ' 篇 · 本地已导入 ' + state.bank.length +
-      ' 篇 · 完整题库不随公开仓库分发，请邮件申请后手动导入。';
+    var realCount = realPapers().length;
+    $('#lib-hint').textContent = '共 ' + rows.length + ' 篇 · 已载入 ' + realCount + ' 篇真题' +
+      (realCount ? '（2007–2026）' : '，点击“载入真题”或自行导入') + ' · 内置示例可直接练。';
     var rb = $('#btn-real');
-    if (rb) { rb.textContent = '申请完整题库'; rb.disabled = false; }
+    if (rb) { rb.textContent = realCount ? '真题已载入' : (realLoading ? '载入中…' : '载入真题'); rb.disabled = !!realCount || realLoading; }
     if (!rows.length) {
       $('#lib-list').innerHTML = '<div class="empty-state"><h2>没有匹配的篇目</h2><p class="muted">换个筛选条件，或导入一篇真题。</p></div>';
       return;
@@ -1263,7 +1257,7 @@
       '<div class="card"><div class="card-head"><h3>帮助与反馈</h3></div>' +
         '<div class="setting-row"><div class="setting-copy"><strong>使用说明</strong><span>每次进站自动显示，也可从这里重新打开</span></div><button class="btn ghost sm" id="btn-settings-guide">查看</button></div>' +
         '<div class="setting-row"><div class="setting-copy"><strong>反馈通道</strong><span>发送到 ' + FEEDBACK_EMAIL + '</span></div><button class="btn ghost sm" id="btn-settings-feedback">写反馈</button></div>' +
-        '<div class="setting-row"><div class="setting-copy"><strong>题库申请</strong><span>完整真题库不随公开仓库分发；邮件申请后导入本机</span></div><button class="btn ghost sm" id="btn-settings-bank">申请题库</button></div>' +
+        '<div class="setting-row"><div class="setting-copy"><strong>题库状态</strong><span>完整题库随站点自动载入，手机无需额外导入</span></div><button class="btn ghost sm" id="btn-settings-bank">查看题库</button></div>' +
       '</div>' +
       '<div class="card"><div class="card-head"><h3>题库整理</h3><span class="muted small">仅保留阅读</span></div>' +
         '<div class="setting-row"><div class="setting-copy"><strong>一键整理</strong><span>移除听力与空条目，按 id 去重，统计异常</span></div><button class="btn ghost sm" id="btn-tidy">整理题库</button></div>' +
@@ -1308,7 +1302,7 @@
     var setFeedback = $('#btn-settings-feedback');
     if (setFeedback) setFeedback.addEventListener('click', openFeedback);
     var setBank = $('#btn-settings-bank');
-    if (setBank) setBank.addEventListener('click', requestBank);
+    if (setBank) setBank.addEventListener('click', function () { go('library'); });
     var cloudUrl = $('#cloud-url');
     if (cloudUrl) cloudUrl.addEventListener('input', function () { readCloudForm(); updateCloudUI(); });
     var cloudKey = $('#cloud-key');
@@ -1626,11 +1620,7 @@
   if (fq) fq.addEventListener('input', function () { state.filter.q = fq.value.trim(); renderLibrary(); });
 
   var btnReal = $('#btn-real');
-  if (btnReal) btnReal.addEventListener('click', requestBank);
-  var bankLink = $('#bank-request-link');
-  if (bankLink) bankLink.href = bankRequestUrl();
-  var copyBankEmailBtn = $('#btn-copy-bank-email');
-  if (copyBankEmailBtn) copyBankEmailBtn.addEventListener('click', copyBankEmail);
+  if (btnReal) btnReal.addEventListener('click', function () { loadRealExams(true); });
 
   var btnSmart = $('#btn-smart');
   if (btnSmart) btnSmart.addEventListener('click', openSmart);
@@ -1757,6 +1747,7 @@
   applySettings();
   if (!location.hash) location.hash = '#/dashboard';
   onHash();
+  if (/^https?:/.test(location.protocol)) loadRealExams(false);
   setTimeout(showGuideOnce, 450);
   if (cloudConfigured() && state.cloud.auto) setTimeout(function () { syncNow('auto', true); }, 1600);
 

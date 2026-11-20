@@ -19,30 +19,33 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Validate public package
+      - name: Validate bundled question bank
         run: |
           python - <<'PY'
           import json
-          import subprocess
           from pathlib import Path
 
-          forbidden = Path("data/real-exams.json")
-          assert not forbidden.exists(), "完整题库不得提交到公开仓库"
+          bank_path = Path("data/real-exams.json")
+          assert bank_path.exists(), "完整题库文件缺失"
 
-          tracked = subprocess.check_output(["git", "ls-files"], text=True).splitlines()
-          assert not any(str(forbidden) in p for p in tracked), "完整题库出现在 Git 跟踪文件中"
+          data = json.loads(bank_path.read_text(encoding="utf-8"))
+          papers = data.get("papers", []) if isinstance(data, dict) else data
+          assert isinstance(papers, list) and len(papers) == 148, "真题篇目数量不是 148"
+
+          for paper in papers:
+              assert paper.get("id"), "存在缺少 id 的篇目"
+              assert paper.get("passage"), f"篇目缺少 passage: {paper.get('id')}"
+              questions = paper.get("questions") or []
+              assert questions, f"篇目缺少题目: {paper.get('id')}"
+
+          question_count = sum(len(paper.get("questions") or []) for paper in papers)
+          assert question_count == 740, f"题目数量不是 740，实际为 {question_count}"
 
           demo_js = Path("data/demo.js").read_text(encoding="utf-8")
           assert "window.KY_DEMO" in demo_js and "questions" in demo_js
 
-          large_json = [
-              str(p) for p in Path(".").rglob("*.json")
-              if ".git" not in p.parts and p.stat().st_size > 500_000
-          ]
-          assert not large_json, f"疑似题库 JSON 文件过大: {large_json}"
-
           for path in Path("docs").glob("*.json"):
               json.loads(path.read_text(encoding="utf-8"))
 
-          print("public package ok: no full exam bank found")
+          print(f"bundled question bank ok: {len(papers)} papers / {question_count} questions")
           PY

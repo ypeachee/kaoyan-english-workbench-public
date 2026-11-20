@@ -1,7 +1,7 @@
-const CACHE = 'ky-workbench-v10';
+const CACHE = 'ky-workbench-v11';
 const ASSETS = [
   './', './index.html', './styles.css', './app.js',
-  './data/plan.js', './data/demo.js', './data/dict.js', './manifest.webmanifest', './icons/icon.svg'
+  './data/plan.js', './data/demo.js', './data/dict.js', './data/real-exams.json', './manifest.webmanifest', './icons/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
