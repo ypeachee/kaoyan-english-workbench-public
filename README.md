@@ -1,6 +1,7 @@
 # 考研英语工作台
 
-**在线体验：** <https://ypeachee.github.io/kaoyan-english-workbench-public/>
+**在线体验（Netlify 自动部署）：** <https://effervescent-alfajores-83f951.netlify.app/>  
+**GitHub Pages 镜像：** <https://ypeachee.github.io/kaoyan-english-workbench-public/>
 
 一个**单页、静态、本地优先**的考研英语练习工作台：阅读练习、逐题解析、长按/双击查词、生词本、错题本、统计、本地记忆、JSON 导入导出、可选云同步与 PWA 离线。
 
@@ -96,6 +97,20 @@ python -m http.server 8080
 ## 5. 部署
 
 项目是纯静态站点，无构建步骤。
+
+### 当前生产部署
+
+- **Netlify 站点**：<https://effervescent-alfajores-83f951.netlify.app/>
+- **GitHub 源仓库**：`ypeachee/kaoyan-english-workbench-public`
+- **部署分支**：`main`
+- **构建命令**：无
+- **发布目录**：仓库根目录（`.`）
+- **自动部署**：每次推送或合并到 `main` 后，Netlify 会自动构建并发布最新提交
+- **配置入口**：Netlify → **Project configuration → Developer settings → Continuous deployment → Repository → Link repository**
+
+该连接已于 **2026-11-20** 验证：Netlify 成功从 GitHub 发布，线上 `app.js` 与 `main` 分支内容一致，页面可正常加载。
+
+公开站点只部署代码和 2 篇示例。`data/real-exams.json` 不在本仓库中，因此线上访问该文件返回 404 是预期行为；完整题库需邮件申请后导入使用者本机。
 
 ### Netlify / Vercel / Cloudflare Pages
 
